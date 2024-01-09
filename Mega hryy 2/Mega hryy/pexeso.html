@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e0e0;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+    <title>Pexeso Game</title>
+</head>
+<body>
+    <div id="game-board"></div>
+
+    <script>
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        let flippedCards = [];
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+
+            return array;
+        }
+
+        function createBoard() {
+            const shuffledLetters = shuffle(letters);
+            const gameBoard = document.getElementById('game-board');
+
+            for (let i = 0; i < shuffledLetters.length; i++) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.setAttribute('data-index', i);
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            }
+        }
+
+        function flipCard() {
+            if (flippedCards.length < 2) {
+                const index = this.getAttribute('data-index');
+                this.innerText = letters[index];
+                this.removeEventListener('click', flipCard); // Deaktivujeme kliknutí na uhodnutou kartu
+                flippedCards.push({ index, letter: letters[index] });
+
+                if (flippedCards.length === 2) {
+                    setTimeout(checkMatch, 500);
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.letter === card2.letter) {
+                alert('Hraješ dobře! Otoč karty znovu.');
+            } else {
+                setTimeout(() => {
+                    resetCards();
+                }, 500);
+            }
+
+            flippedCards = [];
+        }
+
+        function resetCards() {
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => {
+                card.innerText = '';
+                card.addEventListener('click', flipCard); // Znovu povolíme kliknutí na kartu
+            });
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
